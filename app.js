@@ -31,6 +31,19 @@ const posts = [
   },
 ];
 
+// 기존 하드코딩된 내용을 나와야 할 결과 틀에 맞춰 변환
+let postsList = [];
+for (let i = 0; i < posts.length; i++) {
+  let temp = {
+    userID: posts[i].userId,
+    userName: users[i].name,
+    postingId: posts[i].id,
+    postingTitle: posts[i].title,
+    postingContent: posts[i].description,
+  };
+  postsList.push(temp)
+};
+
 // 데이터 저장은 POST 사용
 // 전달받은 데이터를 users 배열에 추가해서 회원정보를 API 시스템 내에 저장한 후에, 생성됐을 때 알맞는 http 상태코드를 반환
 // http response로 반환되는 JSON 데이터의 형태가 다음과 같은 구조가 되도록
@@ -40,6 +53,32 @@ const posts = [
 
 const httpRequestListener = function (request, response) {
   const { url, method } = request;
+
+  if (method === 'GET') {
+    if (url === '/posting_get') {
+      
+      // 클라이언트에서 내용 받기
+      let body = '';
+
+      request.on('data', (data) => {
+        body += data;
+      });
+
+      request.on('end', () => {
+        const list = JSON.parse(body);
+
+        postsList.push({
+          userID: list.userID,
+          userName: list.userName,
+          postingId: list.postingId,
+          postingTitle: list.postingTitle,
+          postingContent: list.postingContent,
+        })
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        response.end(JSON.stringify({"data" : postsList}));
+      })
+    }
+  }
 
   if (method === 'POST') {
     if (url === '/users/signup') {
