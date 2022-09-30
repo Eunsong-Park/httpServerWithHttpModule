@@ -185,6 +185,28 @@ const httpRequestListener = function (request, response) {
       });
     }
   }
+
+  // DELETE 메서드
+  if (method === 'DELETE') {
+    if (url === '/posting_delete') {
+      let body = '';
+
+      request.on('data', (data) => {
+        body += data;
+      });
+
+      request.on('end', () => {
+        let toDelete = JSON.parse(body);
+        for (let i = 0; i < postsList.length; i++) {
+          if (toDelete.postingId === posts[i].id) {
+            delete posts[i];
+          }
+        }
+        response.writeHead(204, {'Content-Type': 'application/json'});
+        response.end(JSON.stringify({message : "postingDeleted"}));
+      });
+    }
+  }
 }
 
 server.on("request", httpRequestListener);
