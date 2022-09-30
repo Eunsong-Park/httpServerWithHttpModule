@@ -14,6 +14,18 @@ const users = [
     email: "Connell29@gmail.com",
     password: "password",
   },
+  {
+    id: 3,
+    name: "Eunsong Park",
+    email: "run.eunsong@gmail.com",
+    password: "ohyes",
+  },
+  {
+    id: 4,
+    name: "John Kim",
+    email: "kim@gmail.com",
+    password: "ohno",
+  }
 ]
 
 const posts = [
@@ -29,19 +41,35 @@ const posts = [
     description: "Request/Response와 Stateless!!",
     userId: 1,
   },
+  {
+    id: 3,
+    title: "자바스크립트 입문",
+    description: "야 너두 할수있어 자바스크립트!",
+    userId: 3,
+  },
+  {
+    id: 4,
+    title: "오늘도 수고했어",
+    description: "열심히 공부합시다.",
+    userId: 3,
+  },
 ];
 
 // 기존 하드코딩된 내용을 나와야 할 결과 틀에 맞춰 변환
 let postsList = [];
-for (let i = 0; i < posts.length; i++) {
-  let temp = {
-    userID: posts[i].userId,
-    userName: users[i].name,
-    postingId: posts[i].id,
-    postingTitle: posts[i].title,
-    postingContent: posts[i].description,
-  };
-  postsList.push(temp)
+for (let i = 0; i < users.length; i++) {
+  for (let j = 0; j < posts.length; j++) {
+    if (users[i].id === posts[j].userId) {
+      let temp = {
+        userID: posts[j].userId,
+        userName: users[i].name,
+        postingId: posts[j].id,
+        postingTitle: posts[j].title,
+        postingContent: posts[j].description,
+      };
+      postsList.push(temp)
+    }
+  }
 };
 
 // 데이터 저장은 POST 사용
@@ -56,27 +84,30 @@ const httpRequestListener = function (request, response) {
 
   if (method === 'GET') {
     if (url === '/posting_get') {
+
+      response.writeHead(200, {'Content-Type': 'application/json'});
+      response.end(JSON.stringify({"data" : postsList}));
       
       // 클라이언트에서 내용 받기
-      let body = '';
+      // let body = '';
 
-      request.on('data', (data) => {
-        body += data;
-      });
+      // request.on('data', (data) => {
+      //   body += data;
+      // });
 
-      request.on('end', () => {
-        const list = JSON.parse(body);
+      // request.on('end', () => {
+      //   const list = JSON.parse(body);
 
-        postsList.push({
-          userID: list.userID,
-          userName: list.userName,
-          postingId: list.postingId,
-          postingTitle: list.postingTitle,
-          postingContent: list.postingContent,
-        })
-        response.writeHead(200, {'Content-Type': 'application/json'});
-        response.end(JSON.stringify({"data" : postsList}));
-      })
+      //   postsList.push({
+      //     userID: list.userID,
+      //     userName: list.userName,
+      //     postingId: list.postingId,
+      //     postingTitle: list.postingTitle,
+      //     postingContent: list.postingContent,
+      //   })
+      //   response.writeHead(200, {'Content-Type': 'application/json'});
+      //   response.end(JSON.stringify({"data" : postsList}));
+      // })
     }
   }
 
