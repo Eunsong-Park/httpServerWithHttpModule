@@ -55,22 +55,6 @@ const posts = [
   },
 ];
 
-// 기존 하드코딩된 내용을 나와야 할 결과 틀에 맞춰 변환
-let postsList = [];
-for (let i = 0; i < users.length; i++) {
-  for (let j = 0; j < posts.length; j++) {
-    if (users[i].id === posts[j].userId) {
-      let temp = {
-        userID: posts[j].userId,
-        userName: users[i].name,
-        postingId: posts[j].id,
-        postingTitle: posts[j].title,
-        postingContent: posts[j].description,
-      };
-      postsList.push(temp)
-    }
-  }
-};
 
 // 데이터 저장은 POST 사용
 // 전달받은 데이터를 users 배열에 추가해서 회원정보를 API 시스템 내에 저장한 후에, 생성됐을 때 알맞는 http 상태코드를 반환
@@ -82,9 +66,26 @@ for (let i = 0; i < users.length; i++) {
 const httpRequestListener = function (request, response) {
   const { url, method } = request;
 
+  // 기존 하드코딩된 내용을 나와야 할 결과 틀에 맞춰 변환
+  let postsList = [];
+  for (let i = 0; i < users.length; i++) {
+    for (let j = 0; j < posts.length; j++) {
+      if (users[i].id === posts[j].userId) {
+        let temp = {
+          userID: posts[j].userId,
+          userName: users[i].name,
+          postingId: posts[j].id,
+          postingTitle: posts[j].title,
+          postingContent: posts[j].description,
+        };
+        postsList.push(temp)
+      }
+    }
+  };
+
+  // GET 메서드
   if (method === 'GET') {
     if (url === '/posting_get') {
-
       response.writeHead(200, {'Content-Type': 'application/json'});
       response.end(JSON.stringify({"data" : postsList}));
       
@@ -108,9 +109,13 @@ const httpRequestListener = function (request, response) {
       //   response.writeHead(200, {'Content-Type': 'application/json'});
       //   response.end(JSON.stringify({"data" : postsList}));
       // })
+    } if (url === '/users_get') {
+      response.writeHead(200, {'Content-Type': 'application/json'});
+      response.end(JSON.stringify({"users" : users}));
     }
   }
 
+  // POST 메서드
   if (method === 'POST') {
     if (url === '/users/signup') {
       let body = '';
@@ -151,6 +156,32 @@ const httpRequestListener = function (request, response) {
 
         response.writeHead(200, {'Content-Type': 'application/json'});
         response.end(JSON.stringify({"posts" : posts}));
+      });
+    }
+  }
+
+  // PATCH 메서드
+  if (method === 'PATCH') {
+    if (url === '/posting_modify') {
+      let body = '';
+
+      request.on('data', (data) => {
+        body += data;
+      });
+
+      request.on('end', () => {
+        let modified = JSON.parse(body);
+
+        // postsList에서 수정되어야 할 부분 찾기
+        for (let i = 0; i < postsList.length; i++) {
+          if (modified.postingId === postsList[i].postingId) {
+            postsList[i].postingContent = modified.postingContent;
+            postsList[i].postingTitle = modified.postingTitle;
+          }
+        }
+        
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        response.end(JSON.stringify({"data" : postsList}));
       });
     }
   }
