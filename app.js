@@ -109,9 +109,33 @@ const httpRequestListener = function (request, response) {
       //   response.writeHead(200, {'Content-Type': 'application/json'});
       //   response.end(JSON.stringify({"data" : postsList}));
       // })
-    } if (url === '/users_get') {
+    } else if (url === '/users_get') {
       response.writeHead(200, {'Content-Type': 'application/json'});
       response.end(JSON.stringify({"users" : users}));
+    } else if (url.startsWith('/users')) {
+      const userId = parseInt(url.split('/')[2]);
+      const user = users.find((user) => user.id === userId);
+
+      const postings = [];
+      for (let i = 0; i < posts.length; i++) {
+        if (userId === posts[i].userId) {
+          const temp = {
+            postingId: posts[i].id,
+            postingName: posts[i].title,
+            postingContent: posts[i].description, 
+          }
+          postings.push(temp);
+        }
+      }
+
+      const userPostings = {
+        userID: user.id,
+        userName: user.name,
+        postings: postings
+      };
+
+      response.writeHead(200, {'Content-Type': 'application/json'});
+      response.end(JSON.stringify({"data" : userPostings}));
     }
   }
 
