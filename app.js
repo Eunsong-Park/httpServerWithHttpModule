@@ -72,7 +72,7 @@ const httpRequestListener = function (request, response) {
     for (let j = 0; j < posts.length; j++) {
       if (users[i].id === posts[j].userId) {
         let temp = {
-          userID: posts[j].userId,
+          userID: users[i].id,
           userName: users[i].name,
           postingId: posts[j].id,
           postingTitle: posts[j].title,
@@ -212,23 +212,32 @@ const httpRequestListener = function (request, response) {
 
   // DELETE 메서드
   if (method === 'DELETE') {
-    if (url === '/posting_delete') {
-      let body = '';
+    // if (url === '/posting_delete') {
+    //   let body = '';
+    //   request.on('data', (data) => {
+    //     body += data;
+    //   });
+    //   request.on('end', () => {
+    //     let toDelete = JSON.parse(body);
+    //     for (let i = 0; i < postsList.length; i++) {
+    //       if (toDelete.postingId === posts[i].id) {
+    //         delete posts[i];
+    //       }
+    //     }
+    //     response.writeHead(204, {'Content-Type': 'application/json'});
+    //     response.end(JSON.stringify({message : "postingDeleted"}));
+    //   });
+    // }
 
-      request.on('data', (data) => {
-        body += data;
-      });
 
-      request.on('end', () => {
-        let toDelete = JSON.parse(body);
-        for (let i = 0; i < postsList.length; i++) {
-          if (toDelete.postingId === posts[i].id) {
-            delete posts[i];
-          }
-        }
-        response.writeHead(204, {'Content-Type': 'application/json'});
-        response.end(JSON.stringify({message : "postingDeleted"}));
-      });
+    if (url.startsWith('/posts')) {
+      const postId = parseInt(url.split('/')[2]);
+      const indexOfPostId = posts.findIndex((post) => post.id === postId);
+      
+      posts.splice(indexOfPostId, 1); 
+
+      response.writeHead(204, {'Content-Type': 'application/json'});
+      response.end(JSON.stringify({"message" : "postingDeleted"}));
     }
   }
 }
